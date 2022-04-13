@@ -1,0 +1,114 @@
+spring:
+  profiles:
+    include:
+      - aws
+      - credentials
+      - openAPI
+      - mail
+    active: devdb
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+server:
+  port: 8081
+
+---
+
+spring:
+  profiles:
+    group:
+      "tony": "tonydb, common"
+      "dev": "devdb,common"
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: "devdb"
+  h2:
+      console:
+        enabled: true # H2 웹 콘솔을 사용
+        path: /test_db # 콘솔의 경로
+  jpa:
+    properties:
+      hibernate:
+        show_sql: true   # sql문 로그 찍어주기
+        format_sql: true # 로그 좀 이쁘게 찍어주기
+        use_sql_comments: true
+  datasource:
+    driver-class-name: org.h2.Driver  #h2 드라이버 설정
+    url: jdbc:h2:file:~/Develop/Github/SpringBlogExam/test_db;AUTO_SERVER=TRUE  #접속 URL
+    username: test  # 사용자 이름 (로그인 시 사용)
+    password: 1234  # 사용자 암호 (로그인 시 사용)
+  jwt:
+    secret: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJKaWhvQGdtYWlsLmNvbSIsInJvbGVzIjpbIlVTRVIiXSwiaWF0IjoxNjM3OTQ5ODUwLCJleHAiOjE2Mzc5NTM0NTB9.9cxwL02Dy3IWhIXPULbY49Pe4vdlgnOqXpHnBeRNeuQ
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: 5e3755636ff2c2835946338bd7552ee3 # 카카오 디벨로퍼 REST API 키   클라이언트 ID
+            redirect-uri: http://localhost:8081/test/signin #"{baseUrl}/{action}/oauth2/code/{registrationId}" # http://localhost:8080/login/oauth2/code/kakao
+            client-authentication-method: POST
+            authorization-grant-type: authorization_code
+            scope: profile_nickname, profile_image, account_email
+            client-name: Kakao
+        provider:
+          kakao:
+            authorization_uri: https://kauth.kakao.com/oauth/authorize
+            token_uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user_name_attribute: id
+          #mail:
+          # host: smtp.gmail.com
+          #port: 587
+          #username: {  }
+          #password: {  }
+          #properties:
+          # mail:
+          #  smtp:
+          #   auth: true
+          #  starttls:
+          #   enable: true
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: "tonydb"
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/petcomes?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul
+    username: root
+    password: gm040404@
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: "common"
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL5Dialect # 데이터베이스 Dialect : 데이터베이스 종류 바뀔시 다른거 변경없이 방언만 변경해주면 됨.
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+        show_sql: true
+          #logging:
+          # level:
+          #  org:
+          #   hibernate:
+          #    type:
+          #     descriptor:
+        #      sql: trace
+      #hibernate:
+      # ddl-auto: none
+    #show-sql: true
+
+
